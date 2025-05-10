@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class SaveFile {
-    public SaveFile(File dirPath, ArrayList<File> filesPath, String dirName, ArrayList<String> fileNameList, String encoder) {
+    public SaveFile(File dirPath, ArrayList<File> filesPath, String dirName, ArrayList<String> fileNameList, String encoder, String ffmpegPath) {
         File savePath = new File(dirPath.getParentFile() + "\\" + Replace.replaceCharacters(dirName));
         int allFilesNumber = Objects.requireNonNull(dirPath.listFiles()).length;
         System.out.println("视频总数：" + allFilesNumber);
@@ -19,8 +19,6 @@ public class SaveFile {
         }
 //        System.out.println(savePath.getPath() + " " + savePath.exists());
 
-        String ffmpegPath = "ffmpeg/ffmpeg.exe"; // TODO: 注意替换ffmpeg程序路径
-
         try {
             int second = 3;
             System.out.println();
@@ -30,7 +28,7 @@ public class SaveFile {
             }
             System.out.println("\n");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         String[] NVIDIA_GPU;
@@ -119,37 +117,9 @@ public class SaveFile {
                 }
             }));
 
-            Thread outputThread = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.printf("\rffmpeg状态: %s", line);
-                        System.out.flush();
-                    }
-                } catch (IOException e) {
-                    if (!e.getMessage().contains("Stream closed")) e.printStackTrace();
-                }
-            });
-            outputThread.start();
+            Thread outputThread = getThread();
 
-            Thread inputThread = new Thread(() -> {
-                try (BufferedReader userInput = new BufferedReader(
-                        new InputStreamReader(System.in));
-                     OutputStream processOutput = process.getOutputStream()) {
-
-                    while (process.isAlive()) {
-                        String input = userInput.readLine();
-                        if (input == null) break;
-
-                        processOutput.write((input + "\n").getBytes());
-                        processOutput.flush();
-                    }
-                } catch (IOException e) {
-                    if (!e.getMessage().contains("closed")) e.printStackTrace();
-                }
-            });
-            inputThread.start();
+            Thread inputThread = getInputThread();
 
             // 主线程等待
             process.waitFor(); // 恢复等待
@@ -162,8 +132,46 @@ public class SaveFile {
             inputThread.join();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+    }
+
+    private static Thread getInputThread() {
+        Thread inputThread = new Thread(() -> {
+            try (BufferedReader userInput = new BufferedReader(
+                    new InputStreamReader(System.in));
+                 OutputStream processOutput = process.getOutputStream()) {
+
+                while (process.isAlive()) {
+                    String input = userInput.readLine();
+                    if (input == null) break;
+
+                    processOutput.write((input + "\n").getBytes());
+                    processOutput.flush();
+                }
+            } catch (IOException e) {
+                if (!e.getMessage().contains("closed")) throw new RuntimeException(e);
+            }
+        });
+        inputThread.start();
+        return inputThread;
+    }
+
+    private static Thread getThread() {
+        Thread outputThread = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.printf("\rffmpeg状态: %s", line);
+                    System.out.flush();
+                }
+            } catch (IOException e) {
+                if (!e.getMessage().contains("Stream closed")) throw new RuntimeException(e);
+            }
+        });
+        outputThread.start();
+        return outputThread;
     }
 
 
