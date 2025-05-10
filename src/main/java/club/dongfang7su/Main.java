@@ -36,9 +36,13 @@ public class Main {
 
                 File ffmpegPath = safeResolveFile(new File(programDir, FFMPEG_PATH));
 
-                System.out.println("正在导入的文件夹: " + draggedPath);
-                System.out.println("FFmpeg路径: " + ffmpegPath.getAbsolutePath());
+                String ffmpegAbsolutePath = ffmpegPath.getAbsolutePath();
+                if (!new File(ffmpegAbsolutePath).exists()) {
+                    System.out.println("\nffmpeg程序不存在，请检查程序目录结构完整性或ffmpeg目录下是否有ffmpeg.exe\n\nErrorPath：" + ffmpegAbsolutePath);
+                    ExitProgram.exit();
+                }
 
+                System.out.println("\n正在导入的文件夹: " + draggedPath);
                 userInteraction(new File(draggedPath), dirInit(draggedPath));
             }
 
@@ -49,11 +53,20 @@ public class Main {
     }
 
     // 获取程序所在目录（兼容JAR/EXE/IDE运行）
-    private static File getProgramDirectory() throws URISyntaxException {
-        //  动态获取当前 Java 程序所在的 JAR 文件或 class 文件目录的绝对路径，并将其转换为标准的 URI 格式。
-        File jarFile = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-        // 如果是JAR文件，返回其所在目录；否则返回项目目录
-        return jarFile.isFile() ? jarFile.getParentFile() : new File(System.getProperty("user.dir"));
+    private static File getProgramDirectory() {
+        String exeDir = System.getProperty("exe.dir");
+        if (exeDir != null) {
+            return new File(exeDir);
+        } else {
+            try {
+                //  动态获取当前 Java 程序所在的 JAR 文件或 class 文件目录的绝对路径，并将其转换为标准的 URI 格式。
+                File jarFile = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+                // 如果是JAR文件，返回其所在目录；否则返回项目目录
+                return jarFile.isFile() ? jarFile.getParentFile() : new File(System.getProperty("user.dir"));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("ffmpeg.exe不存在", e);
+            }
+        }
     }
 
     // 处理拖拽参数（合并空格并验证路径存在性）
