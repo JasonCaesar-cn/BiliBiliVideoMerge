@@ -16,7 +16,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static final String FFMPEG_PATH = "ffmpeg/ffmpeg.exe";
+    private static final String FFMPEG_PATH = "ffmpeg/ffmpeg.exe";
 
     private static final String NVIDIA_GPU = "NVIDIA_GPU";
     private static final String INTEL_GPU = "INTEL_GPU";
@@ -28,7 +28,7 @@ public class Main {
             File programDir = getProgramDirectory();
 
             String draggedPath = processDraggedArgs(args);
-//            draggedPath = "D:\\桌面\\114476917461083";
+//            draggedPath = "C:\\Users\\DongFang7Su\\Desktop\\114476917461083";
             if (draggedPath == null) {
                 System.out.println("错误：未拖拽有效文件夹！");
                 ExitProgram.exit();
@@ -43,11 +43,11 @@ public class Main {
                 }
 
                 System.out.println("\n正在导入的文件夹: " + draggedPath);
-                userInteraction(new File(draggedPath), dirInit(draggedPath));
+                userInteraction(new File(draggedPath), dirInit(draggedPath), ffmpegAbsolutePath);
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
     }
@@ -105,7 +105,7 @@ public class Main {
 
     }
 
-    private static void userInteraction(File dirPath, GetJsonData jsonData) {
+    private static void userInteraction(File dirPath, GetJsonData jsonData, String ffmpegPath) {
         Scanner sc = new Scanner(System.in);
         VideoMerge videoMerge = new VideoMerge(
                 jsonData.getIndexList(),
@@ -127,7 +127,8 @@ public class Main {
                         jsonData.getAvailableFileList(),
                         jsonData.getVideoName(),
                         videoMerge.getFileNameList(),
-                        NVIDIA_GPU
+                        NVIDIA_GPU,
+                        ffmpegPath
                 );
                 break;
             case 2:
@@ -136,7 +137,8 @@ public class Main {
                         jsonData.getAvailableFileList(),
                         jsonData.getVideoName(),
                         videoMerge.getFileNameList(),
-                        INTEL_GPU
+                        INTEL_GPU,
+                        ffmpegPath
                 );
                 break;
             case 3:
@@ -145,7 +147,8 @@ public class Main {
                         jsonData.getAvailableFileList(),
                         jsonData.getVideoName(),
                         videoMerge.getFileNameList(),
-                        DEFAULT
+                        DEFAULT,
+                        ffmpegPath
                 );
                 break;
         }
