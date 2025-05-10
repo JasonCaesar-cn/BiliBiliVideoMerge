@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class ExitProgram {
     public static void exit() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("回车退出程序\n");
+        System.out.println("\n请按下回车退出程序\n");
         scanner.nextLine();
         System.exit(0);
     }
