@@ -42,3 +42,4 @@ ffmpeg/
 ffmpeg/ffmpeg.exe
 .idea/artifacts/
 .idea/artifacts/BiliBiliVideoMerge_jar.xml
+/out/BiliBiliVideoMerge.jar
