@@ -22,6 +22,7 @@ public class GetJsonData {
     private final ArrayList<File> availableFileList = new ArrayList<>();
 
     private String videoName = null;
+    private boolean isUserVideo = false;
 
 
     private static JsonObject getReader(File file) throws FileNotFoundException {
@@ -38,20 +39,26 @@ public class GetJsonData {
         String cartoon = "ep";
         String userVideo = "page_data";
 
-        //  处理entry.json中关于番剧集数/视频分P、以及标题等信息
+        //  处理entry.json中有关番剧集数/视频分P、以及标题等信息
 
         for (File file : dirPathList) {
             try {
                 JsonObject jsonObject = getReader(file);
 
                 this.videoName = getReader(file).getString("title").replace(" ", "_");
+
                 if (jsonObject.getJsonObject(cartoon) != null) {
                     this.indexList.add(jsonObject.getJsonObject(cartoon).getString("index"));
                     this.indexTitleList.add(jsonObject.getJsonObject(cartoon).getString("index_title"));
+                    this.isUserVideo = false;
+//                    System.out.println("ep: true");
                 } else if (jsonObject.getJsonObject(userVideo) != null) {
                     this.indexList.add(jsonObject.getJsonObject(userVideo).getString("download_subtitle"));
                     this.indexTitleList.add(jsonObject.getJsonObject(userVideo).getString("part"));
-                }
+                    this.isUserVideo = true;
+//                    System.out.println("page_data: true");
+                } else
+                    throw new NullPointerException();
                 this.availableFileList.add(file);
 
             } catch (NullPointerException | FileNotFoundException e) {
@@ -87,4 +94,10 @@ public class GetJsonData {
         //  返回确定导出的视频列表
         return this.availableFileList;
     }
+
+    public boolean isUserVideo() {
+        //  返回是否为用户视频
+        return isUserVideo;
+    }
+
 }
