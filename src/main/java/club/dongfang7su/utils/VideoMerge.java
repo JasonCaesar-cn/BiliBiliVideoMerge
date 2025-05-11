@@ -12,15 +12,26 @@ public class VideoMerge {
 
     private final ArrayList<String> fileNameList = new ArrayList<>();
 
-    public VideoMerge(ArrayList<String> indexList, ArrayList<String> indexTitleList) {
+    public VideoMerge(ArrayList<String> indexList, ArrayList<String> indexTitleList, boolean isUserVideo) {
 
-        for (String index : indexList) {
-            String indexVideo = "第" + index + "集";
-            String videoTitle = indexTitleList.get(indexList.indexOf(index)).replace(" ", "_");
-            if (indexTitleList.get(indexList.indexOf(index)).isEmpty()) {
-                this.fileNameList.add(indexVideo);
-            } else this.fileNameList.add(indexVideo + "-" + videoTitle);
+        if (isUserVideo) {
+            for (String index : indexList) {
+                String videoTitle = indexTitleList.get(indexList.indexOf(index)).replace(" ", "_");
+//                System.out.println("videoTitle: " + videoTitle);
+                this.fileNameList.add(videoTitle);
+            }
+        } else {
+            for (String index : indexList) {
+                String indexVideo = "第" + index + "集";
+//                System.out.println("index: " + index);
+                String videoTitle = indexTitleList.get(indexList.indexOf(index)).replace(" ", "_");
+                if (indexTitleList.get(indexList.indexOf(index)).isEmpty()) {
+                    this.fileNameList.add(indexVideo);
+                } else this.fileNameList.add(indexVideo + "-" + videoTitle);
+            }
+
         }
+
     }
 
     public ArrayList<String> getFileNameList() {
