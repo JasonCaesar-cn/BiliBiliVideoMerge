@@ -28,7 +28,7 @@ public class Main {
             File programDir = getProgramDirectory();
 
             String draggedPath = processDraggedArgs(args);
-//            draggedPath = "C:\\Users\\DongFang7Su\\Desktop\\114476917461083";
+//            draggedPath = "D:\\桌面\\s_1192";
             if (draggedPath == null) {
                 System.out.println("错误：未拖拽有效文件夹！");
                 ExitProgram.exit();
@@ -109,8 +109,10 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         VideoMerge videoMerge = new VideoMerge(
                 jsonData.getIndexList(),
-                jsonData.getIndexTitleList()
+                jsonData.getIndexTitleList(),
+                jsonData.isUserVideo()
         );
+//        System.out.println("FileNameList: " + videoMerge.getFileNameList());
         System.out.println("请选择要使用的解码器(不知道选哪个的请选择 自动)：");
         System.out.println("输入对应数字回车即可：\n");
         System.out.println("1.  英伟达独显加速");
